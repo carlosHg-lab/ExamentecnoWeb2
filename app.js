@@ -1,3 +1,5 @@
+/*Carlos Alejandro Huanaco Gutierrez*/
+
 const API_KEY = 'a51df9b01c944c22d31e89e81d80a907'; 
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_URL = 'https://image.tmdb.org/t/p/w500';

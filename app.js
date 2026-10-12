@@ -93,12 +93,72 @@ const crearTarjeta = (serie) => {
     `;
 }
 
+const buscarSeries = async (texto) => {
+    if (!texto || texto.trim() === '') {
+        return obtenerSeries();
+    }
+
+    const query = encodeURIComponent(texto.trim());
+    const url = `${BASE_URL}/search/tv?api_key=${API_KEY}&language=es-ES&query=${query}`;
+    const respuesta = await fetch(url);
+
+    if (!respuesta.ok) {
+        throw new Error(`Error HTTP: ${respuesta.status}`);
+    }
+
+    const datos = await respuesta.json();
+    return datos.results;
+}
+
+let timeoutBusqueda = null;
+
+searchInput.addEventListener('input', (evento) => {
+    const texto = evento.target.value;
+    clearTimeout(timeoutBusqueda);
+    timeoutBusqueda = setTimeout(async () => {
+        console.log(`Buscando series: ${texto}`);
+        mostrarLoading();
+        try {
+            const series = await buscarSeries(texto);
+            ocultarLoading();
+            if (!series || series.length === 0) {
+                seriesGrid.innerHTML = `<p>No hay series: ${texto}</p>`;
+                return;
+            }
+            seriesGrid.innerHTML = series.map(crearTarjeta).join('');
+            console.log(`${series.length} resultados: ${texto}`);
+        } catch (error) {
+            console.error('Error al buscar:', error);
+            mostrarError('Error al buscar series. Intenta de nuevo');
+        }
+    }, 500);
+});
+
+clearBtn.addEventListener('click', async () => {
+
+    searchInput.value = '';
+
+    mostrarLoading();
+    try {
+        const series = await obtenerSeries();
+        ocultarLoading();
+        seriesGrid.innerHTML = series.map(crearTarjeta).join('');
+        resultsTitle.textContent = 'Series Populares';
+        resultsCount.textContent = `${series.length} resultados`;
+        console.log('Búsqueda limpiada y series populares recargadas');
+    } catch (error) {
+        console.error('Error cargar series:', error);
+        mostrarError('No se pudo cargar series');
+    }
+});
+
+
 const iniciar = async () => {
     console.log('Mostrar serie');
     mostrarLoading();
     try {
         const series = await obtenerSeries();
-        console.log(`${series.length} películas obtenidas`);
+        console.log(`${series.length} series obtenidas`);
         ocultarLoading();
         seriesGrid.innerHTML = series.map(crearTarjeta).join('');
         console.log('Series renderizadas con éxito');

@@ -225,6 +225,8 @@ const iniciar = async () => {
         mostrarError(mensaje);
     }
 }
+retryBtn.addEventListener('click', () => {
+    iniciar();
+});
 
 iniciar();
-

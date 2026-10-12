@@ -215,15 +215,16 @@ const iniciar = async () => {
         console.log('Series renderizadas con éxito');
     } catch (error) {
         console.error('Error al cargar:', error);
+        let mensaje = 'No se pudo cargar Series';
+        
+        if (error.message.includes('401')) {
+            mensaje = 'API key inválida, verifica tu clave';
+        } else if (error.message.includes('Failed to fetch')) {
+            mensaje = 'Error de conexión. Revisa tu internet';
+        }
         mostrarError(mensaje);
     }
 }
 
 iniciar();
 
-// ############################################################################
-// #                                                                          #
-// #                          TU CÓDIGO AQUÍ                    #
-// #                                                                          #
-// ############################################################################
- 

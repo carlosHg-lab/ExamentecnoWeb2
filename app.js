@@ -152,6 +152,57 @@ clearBtn.addEventListener('click', async () => {
     }
 });
 
+const obtenerDetalleSerie = async (id) => {
+    const url = `${BASE_URL}/tv/${id}?api_key=${API_KEY}&language=es-ES`;
+    const respuesta = await fetch(url);
+
+    if (!respuesta.ok) {
+        throw new Error(`Error HTTP: ${respuesta.status}`);
+    }
+
+    const datos = await respuesta.json();
+    return datos;
+};
+
+const mostrarModal = (serie) => {
+    const generos = serie.genres.map(g => g.name).join(', ') || 'N/A';
+
+    modalBody.innerHTML = `
+        <h2>${serie.name}</h2>
+            <p><strong>Sinopsis:</strong> ${serie.overview || 'No disponible'}</p>
+            <p><strong>Temporadas:</strong> ${serie.number_of_seasons}</p>
+            <p><strong>Episodios:</strong> ${serie.number_of_episodes}</p>
+            <p><strong>Géneros:</strong> ${generos}</p>
+            <p><strong>Estado:</strong> ${serie.status}</p>
+    `;
+
+    modal.style.display = 'block';
+};
+
+modalClose.addEventListener('click', () => {
+    modal.style.display = 'none';
+});
+modalOverlay.addEventListener('click', () => {
+    modal.style.display = 'none';
+});
+
+seriesGrid.addEventListener('click', async (evento) => {
+    const card = evento.target.closest('.serie-card');
+    if (!card) return;
+
+    const index = Array.from(seriesGrid.children).indexOf(card);
+    const textoBusqueda = searchInput.value.trim();
+    try {
+        const series = textoBusqueda ? await buscarSeries(textoBusqueda) : await obtenerSeries();
+        const serieSeleccionada = series[index];
+
+        const detalles = await obtenerDetalleSerie(serieSeleccionada.id);
+        mostrarModal(detalles);
+    } catch (error) {
+        console.error('Error al obtener detalles de la serie:', error);
+        mostrarError('No se pudieron cargar los detalles de la serie');
+    }
+});
 
 const iniciar = async () => {
     console.log('Mostrar serie');
